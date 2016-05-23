@@ -12,10 +12,14 @@
 #define _FUNCS_H
 
 #include "common.h"
+#include <time.h>
+#include <string.h>
 //#include <time.h>
 
 void create_random_array(star_t * array, int size);
+int randChar();
 void sort(star_t* array, int n);
+float distance(star_t star);
 void print_stars(star_t* array, int n);
 
 void fill_matrix(star_t * array, float_t **matrix, int size);
