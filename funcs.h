@@ -12,6 +12,7 @@
 #define _FUNCS_H
 
 #include "common.h"
+#include <time.h>
 
 void create_random_array(star_t * array, int size);
 void sort(star_t* array, int n);

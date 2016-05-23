@@ -13,7 +13,15 @@
 
 void create_random_array(star_t * stars, int size)
 {
-  
+    srand(time(NULL));
+    int i;
+    for (i = 0; i<size; i++) {
+        stars[i]  = NULL;
+        stars[i].pos.x = rand()/RAND_MAX * 1e5 - 5e4;
+        stars[i].pos.y = rand()/RAND_MAX * 1e5 - 5e4;
+        stars[i].pos.z = rand()/RAND_MAX * 3e3 - 1.5e3;
+        stars[i].magnitude = rand()/RAND_MAX*30 - 10;
+    }
 }
 
 void print_stars(star_t* array, int n)
