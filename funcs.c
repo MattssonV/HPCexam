@@ -55,7 +55,10 @@ void print_stars(star_t* array, int n)
     int i;
     printf("\nprint_stars, n = %d:\n", n);
     for(i = 0; i<n; i++)
-        printf("%s    ",array[i].designation);
+        printf("%s ",array[i].designation);
+    printf("\n");
+    for (i=0; i<n; i++)
+        printf("%f ",distance(array[i]));
     printf("\n");
 }
 
@@ -75,21 +78,21 @@ void sort(star_t* array, int n)
     int i, j;
     //float *distlist;
     //distlist = (float *) malloc(n*sizeof(float));
-    stars_temp[0] = array[0];
-    for (i=1; i<n; i++) {
-        a = distance(array[i]);
-        for (j=i-1; j>=0; j--) {
-            b = distance(array[j]);
-            if (a<b || j == 0){
-                printf("H %d ",j);
-                stars_temp[j+1]=stars_temp[j];
-                stars_temp[j]=array[i];
-                j = -1;
-            } else
-                stars_temp[j+1] = stars_temp[j];
+    //stars_temp[0] = array[0];
+
+    star_t temp;
+    for (i=0; i<n-1; ++i)
+        for (j=0; j<n-1; ++j) {
+            a = distance(array[j]);
+            b = distance(array[j+1]);
+            if (a>b){
+                temp = array[j];
+                array[j] = array[j+1];
+                array[j+1] = temp;
+            }else
+                printf("%d ",i);
         }
-    }
-    memcpy(array,stars_temp,n*sizeof(star_t));
+    //memcpy(array,stars_temp,n*sizeof(star_t));
     free(stars_temp);
 }
 
