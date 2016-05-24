@@ -132,9 +132,40 @@ void print_matrix(float_t** theMatrix, int n)
     }
 }
 
-hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, int hist_size)
-{
-  
+hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, int hist_size) {
+    int i,j;
+    hist_param_t parameters;
+    parameters.hist_size = hist_size;
+    float_t mini = 1e7,maxi = 0,temp,a;
+    float_t *von_neu;
+    von_neu = (float_t *) malloc((mat_size-2)*(mat_size-2)*sizeof(float_t));
+    for (i=1; i<mat_size-1; i++)
+        for (j=1; j<mat_size-1; j++){
+            a = matrix[i][j];
+            temp = (abs(matrix[i][j-1]-a)+abs(matrix[i][j+1]-a)+abs(matrix[i+1][j]-a)+abs(matrix[i-1][j]-a))/4;
+            //printf("%f\t",temp);
+            von_neu[-6+i*(mat_size-2)+j] = temp;
+            if (temp < mini)
+                mini = temp;
+            if (temp > maxi)
+                maxi = temp;
+        }
+    //printf("\n%f,   %f",mini,maxi);
+    parameters.min = mini;
+    parameters.max = maxi;
+    parameters.bin_size = (maxi-mini)/parameters.hist_size;
+    //printf("\n%f,   %f,    %f,    %d\n",parameters.min,parameters.max,parameters.bin_size,parameters.hist_size);
+    
+    for (i=0; i<(mat_size-2)*(mat_size-2); i++)
+        for (j=0; j<hist_size; j++) {
+            temp = von_neu[i];
+            if (temp >= parameters.min+parameters.bin_size*j && temp <= parameters.min+parameters.bin_size*(j+1))
+                histogram[j]++;
+        }
+    //for (i=0; i<hist_size; i++) {
+    //    printf("%d\t",histogram[i]);
+    //}
+    return parameters;
 }
 
 void display_histogram(int *histogram, hist_param_t histparams)

@@ -74,23 +74,23 @@ int main(int argc, char **argv)
     printtime(start, end);
     
     
-     printf("filling matrix: \t");
-     start = clock();
-     fill_matrix(stars, matrix, N);
-     
-     end = clock();
-     printtime(start, end);
-     print_matrix(matrix, N);
+    printf("filling matrix: \t");
+    start = clock();
+    fill_matrix(stars, matrix, N);
     
-    /*
-     printf("generating histogram: \t");
-     start = clock();
-     int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
-     hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
-     end = clock();
-     printtime(start, end);
-     
-     display_histogram(histogram, histparams);
-     */
+    end = clock();
+    printtime(start, end);
+    print_matrix(matrix, N);
+    
+    
+    printf("generating histogram: \t");
+    start = clock();
+    int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
+    hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
+    end = clock();
+    printtime(start, end);
+    
+    display_histogram(histogram, histparams);
+    
     return 0;
 }
