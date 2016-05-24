@@ -57,8 +57,8 @@ void print_stars(star_t* array, int n)
     for(i = 0; i<n; i++)
         printf("%s ",array[i].designation);
     printf("\n");
-    for (i=0; i<n; i++)
-        printf("%f ",distance(array[i]));
+    //for (i=0; i<n; i++)
+     //   printf("%f ",distance(array[i]));
     printf("\n");
 }
 
@@ -76,10 +76,6 @@ void sort(star_t* array, int n)
     star_t *stars_temp = (star_t *) malloc(n*sizeof(star_t));
     float_t a, b;
     int i, j;
-    //float *distlist;
-    //distlist = (float *) malloc(n*sizeof(float));
-    //stars_temp[0] = array[0];
-
     star_t temp;
     for (i=0; i<n-1; ++i)
         for (j=0; j<n-1; ++j) {
@@ -89,10 +85,8 @@ void sort(star_t* array, int n)
                 temp = array[j];
                 array[j] = array[j+1];
                 array[j+1] = temp;
-            }else
-                printf("%d ",i);
+            }
         }
-    //memcpy(array,stars_temp,n*sizeof(star_t));
     free(stars_temp);
 }
 
@@ -104,9 +98,26 @@ float_t distance(star_t star){
     return sqrt(x*x+y*y+z*z);
 }
 
-void fill_matrix(star_t * array, float_t **matrix, int size)
-{
-  
+void fill_matrix(star_t * array, float_t **matrix, int size){
+    float_t a,b;
+    int i,j;
+    for (i=0; i<size; i++)
+        for (j=0; j<size; j++) {
+            a = star_distance(array[i],array[j]);
+            b = starfunc(array[i],array[j]);
+            matrix[i][j] = a+b;
+            //if (i==j || (i==1&&j==1)) {
+            //    printf("%f %d %d\n",a,i,j);
+            //}
+        }
+}
+
+float_t star_distance(star_t star1, star_t star2){
+    float_t x,y,z;
+    x = star1.position.x-star2.position.x;
+    y = star1.position.y-star2.position.y;
+    z = star1.position.z-star2.position.z;
+    return sqrt(x*x+y*y+z*z);
 }
 
 void print_matrix(float_t** theMatrix, int n)

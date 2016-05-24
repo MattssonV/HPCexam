@@ -1,8 +1,8 @@
 /*****
  *  Code for examination project in High Performance Computing and Programming
- * 
- *  main.c main implementation file 
- *  
+ *
+ *  main.c main implementation file
+ *
  *  Author: Marcus Holm
  *  Modified by: Elias Rudberg
  *
@@ -19,22 +19,22 @@ int randChar();
 
 void printtime(clock_t s, clock_t e)
 {
-  printf("time: %f\n", (double)(e-s)/CLOCKS_PER_SEC);    
+    printf("time: %f\n", (double)(e-s)/CLOCKS_PER_SEC);
 }
 
 int main(int argc, char **argv)
 {
-  int N, i;
-  clock_t start, end;
+    int N, i;
+    clock_t start, end;
     star_t *stars;
-  if(argc > 2)
+    if(argc > 2)
     {
-      printf("usage: ./a.out N\n");
-      return 0;
+        printf("usage: ./a.out N\n");
+        return 0;
     }
     else if (argc==2){
-    N = atoi(argv[1]);
-  stars = (star_t *) malloc(N*sizeof(star_t));
+        N = atoi(argv[1]);
+        stars = (star_t *) malloc(N*sizeof(star_t));
         printf("creating random stars: \t");
         start = clock();
         
@@ -48,44 +48,49 @@ int main(int argc, char **argv)
         stars = (star_t *) malloc(N*sizeof(star_t));
         create_ref_star_array(stars,N);
     }
-   
-
-  print_stars(stars, N);
-         
-  printf("sorting stars:    \t");
     
-  start = clock();
-
-  sort(stars, N);
-   
-  end = clock();
-  printtime(start, end);
-  print_stars(stars, N);
-   
-  printf("allocating matrix: \t");
-  start = clock();
-  float_t **matrix;
-    matrix = (float_t **) malloc(N*N*sizeof(float_t));
-  end = clock();
-  printtime(start, end);
-   
+    
+    print_stars(stars, N);
+    
+    printf("sorting stars:    \t");
+    
+    start = clock();
+    
+    sort(stars, N);
+    
+    end = clock();
+    printtime(start, end);
+    print_stars(stars, N);
+    
+    printf("allocating matrix: \t");
+    start = clock();
+    
+    float_t **matrix;
+    matrix = (float_t **) malloc(N*sizeof(float_t));
+    for (i=0; i<N; i++) {
+        matrix[i] = (float_t *) malloc(N*sizeof(float_t));
+    }
+    end = clock();
+    printtime(start, end);
+    
+    
+     printf("filling matrix: \t");
+     start = clock();
+     fill_matrix(stars, matrix, N);
+     
+     end = clock();
+     printtime(start, end);
+     print_matrix(matrix, N);
+    
     /*
-  printf("filling matrix: \t");
-  start = clock();
-  fill_matrix(stars, matrix, N);
-   
-  end = clock();
-  printtime(start, end);
-  // print_matrix(matrix, N);
-   
-  printf("generating histogram: \t");
-  start = clock();
-  int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
-  hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
-  end = clock();
-  printtime(start, end);
-
-  display_histogram(histogram, histparams);
+     printf("generating histogram: \t");
+     start = clock();
+     int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
+     hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
+     end = clock();
+     printtime(start, end);
+     
+     display_histogram(histogram, histparams);
      */
     return 0;
 }

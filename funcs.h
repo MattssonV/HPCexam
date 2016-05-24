@@ -23,6 +23,7 @@ float distance(star_t star);
 void print_stars(star_t* array, int n);
 
 void fill_matrix(star_t * array, float_t **matrix, int size);
+float_t star_distance(star_t star1, star_t star2);
 void print_matrix(float_t** matrix, int n);
 
 hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, int hist_size);
