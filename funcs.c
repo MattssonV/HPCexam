@@ -8,23 +8,26 @@
  *
  **/
 
+#include <stdlib.h>
+#include <stdio.h>
 #include "funcs.h"
+#include <time.h>
+#include <unistd.h>
 
 
 
 void create_random_array(star_t * stars, int size)
 {
-    srand(time(NULL));
     int i;
     for (i = 0; i<size; i++) {
         stars[i].index = 0;
         stars[i].spectralType = (char) randChar();
         stars[i].subType = (unsigned short) rand() % 10;
         sprintf(stars[i].designation, "%c%d.%d", stars[i].spectralType, stars[i].subType, stars[i].index);
-        stars[i].position.x = rand()/RAND_MAX * 1e5 - 5e4;
-        stars[i].position.y = rand()/RAND_MAX * 1e5 - 5e4;
-        stars[i].position.z = rand()/RAND_MAX * 3e3 - 1.5e3;
-        stars[i].magnitude = rand()/RAND_MAX*30 - 10;
+        stars[i].position.x = (float_t) rand()/RAND_MAX * 1e5 - 5e4;
+        stars[i].position.y = (float_t) rand()/RAND_MAX * 1e5 - 5e4;
+        stars[i].position.z = (float_t) rand()/RAND_MAX * 3e3 - 1.5e3;
+        stars[i].magnitude = (float_t) rand()/RAND_MAX*30 - 10;
     }
 }
 
@@ -57,8 +60,8 @@ void print_stars(star_t* array, int n)
     for(i = 0; i<n; i++)
         printf("%s ",array[i].designation);
     printf("\n");
-    //for (i=0; i<n; i++)
-     //   printf("%f ",distance(array[i]));
+    for (i=0; i<n; i++)
+        printf("%f ",distance(array[i]));
     printf("\n");
 }
 
@@ -81,6 +84,7 @@ void sort(star_t* array, int n)
         for (j=0; j<n-1; ++j) {
             a = distance(array[j]);
             b = distance(array[j+1]);
+            array[i].index++;
             if (a>b){
                 temp = array[j];
                 array[j] = array[j+1];
@@ -144,7 +148,7 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
             a = matrix[i][j];
             temp = (abs(matrix[i][j-1]-a)+abs(matrix[i][j+1]-a)+abs(matrix[i+1][j]-a)+abs(matrix[i-1][j]-a))/4;
             //printf("%f\t",temp);
-            von_neu[-6+i*(mat_size-2)+j] = temp;
+            von_neu[-(mat_size-1)+i*(mat_size-2)+j] = temp;
             if (temp < mini)
                 mini = temp;
             if (temp > maxi)
@@ -154,7 +158,6 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
     parameters.min = mini;
     parameters.max = maxi;
     parameters.bin_size = (maxi-mini)/parameters.hist_size;
-    //printf("\n%f,   %f,    %f,    %d\n",parameters.min,parameters.max,parameters.bin_size,parameters.hist_size);
     
     for (i=0; i<(mat_size-2)*(mat_size-2); i++)
         for (j=0; j<hist_size; j++) {
@@ -165,6 +168,7 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
     //for (i=0; i<hist_size; i++) {
     //    printf("%d\t",histogram[i]);
     //}
+    free(von_neu);
     return parameters;
 }
 

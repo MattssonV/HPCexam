@@ -24,6 +24,8 @@ void printtime(clock_t s, clock_t e)
 
 int main(int argc, char **argv)
 {
+    srand(time(NULL));
+    
     int N, i;
     clock_t start, end;
     star_t *stars;
@@ -37,7 +39,6 @@ int main(int argc, char **argv)
         stars = (star_t *) malloc(N*sizeof(star_t));
         printf("creating random stars: \t");
         start = clock();
-        
         create_random_array(stars, N);
         
         end = clock();
@@ -50,7 +51,7 @@ int main(int argc, char **argv)
     }
     
     
-    print_stars(stars, N);
+    //print_stars(stars, N);
     
     printf("sorting stars:    \t");
     
@@ -60,13 +61,13 @@ int main(int argc, char **argv)
     
     end = clock();
     printtime(start, end);
-    print_stars(stars, N);
+    //print_stars(stars, N);
     
     printf("allocating matrix: \t");
     start = clock();
     
     float_t **matrix;
-    matrix = (float_t **) malloc(N*sizeof(float_t));
+    matrix = (float_t **) malloc(N*sizeof(float_t*));
     for (i=0; i<N; i++) {
         matrix[i] = (float_t *) malloc(N*sizeof(float_t));
     }
@@ -80,7 +81,7 @@ int main(int argc, char **argv)
     
     end = clock();
     printtime(start, end);
-    print_matrix(matrix, N);
+    //print_matrix(matrix, N);
     
     
     printf("generating histogram: \t");
@@ -91,6 +92,11 @@ int main(int argc, char **argv)
     printtime(start, end);
     
     display_histogram(histogram, histparams);
+    
+    free(stars);
+    for (i=0; i<N; i++)
+        free(matrix[i]);
+    free(matrix);
     
     return 0;
 }

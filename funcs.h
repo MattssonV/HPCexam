@@ -14,7 +14,7 @@
 #include "common.h"
 #include <time.h>
 #include <string.h>
-//#include <time.h>
+#include <time.h>
 
 void create_random_array(star_t * array, int size);
 int randChar();
