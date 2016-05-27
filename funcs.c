@@ -19,7 +19,7 @@ void create_random_array(star_t * stars, int size)
 {
     int i;
     for (i = 0; i<size; i++) {
-        stars[i].index = 0;
+        stars[i].index = i;
         stars[i].spectralType = (char) randChar();
         stars[i].subType = (unsigned short) rand() % 10;
         sprintf(stars[i].designation, "%c%d.%d", stars[i].spectralType, stars[i].subType, stars[i].index);
@@ -28,6 +28,50 @@ void create_random_array(star_t * stars, int size)
         stars[i].position.z = (float_t) rand()/RAND_MAX * 3e3 - 1.5e3;
         stars[i].magnitude = (float_t) rand()/RAND_MAX*30 - 10;
     }
+}
+
+nodeP createStarList(int N){
+    nodeP new, top, last;
+    top = NULL; int i, ind;
+    for (i=0; i<N; i++) {
+        new = createNode(ind);
+        ind++;
+        if (top==NULL)
+            top = new;
+        else
+            last->next = new;
+        last = new;
+    }
+    return top;
+}
+
+nodeP createNode(int ind){
+    nodeP new = (nodeP) malloc(sizeof(node));
+    new->star = createStar(ind);
+    new->next = NULL;
+    ind++;
+    return new;
+}
+
+star_t createStar(int ind){
+    star_t star;
+    star.index = ind;
+    star.spectralType = (char) randChar();
+    star.subType = (unsigned short) rand() % 10;
+    sprintf(star.designation, "%c%d.%d", star.spectralType, star.subType, star.index);
+    star.position.x = (float_t) rand()/RAND_MAX * 1e5 - 5e4;
+    star.position.y = (float_t) rand()/RAND_MAX * 1e5 - 5e4;
+    star.position.z = (float_t) rand()/RAND_MAX * 3e3 - 1.5e3;
+    star.magnitude = (float_t) rand()/RAND_MAX*30 - 10;
+    return star;
+}
+
+void printList(nodeP n) {
+    while (n != NULL) {
+        printf("%s\t", n->star.designation);
+        n = n->next;
+    }
+    printf("\n");
 }
 
 int randChar(){
@@ -196,5 +240,6 @@ void saveToFile(int N, double *timings){
     for (i=0; i<5; i++) {
         fprintf(fp,",%f",timings[i]);
     }
+    printf("Saved to %s\n",filename);
     fclose(fp);
 }

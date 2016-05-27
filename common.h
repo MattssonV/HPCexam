@@ -34,4 +34,5 @@ typedef struct hist_params{
   float_t min, max, bin_size;
 } hist_param_t;
 
+
 #endif

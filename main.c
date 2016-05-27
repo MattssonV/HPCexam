@@ -31,6 +31,7 @@ int main(int argc, char **argv)
     int N, i;
     clock_t start, end;
     star_t *stars;
+    nodeP list;
     double *timings = (double *) malloc(5*sizeof(double));
     if(argc > 2)
     {
@@ -39,11 +40,10 @@ int main(int argc, char **argv)
     }
     else if (argc==2){
         N = atoi(argv[1]);
-        stars = (star_t *) malloc(N*sizeof(star_t));
+        
         printf("creating random stars: \t");
         start = clock();
-        create_random_array(stars, N);
-        
+        list = createStarList(N);
         end = clock();
         timings[0] = printtime(start, end);
     }
@@ -55,7 +55,8 @@ int main(int argc, char **argv)
     
     
     //print_stars(stars, N);
-    
+    printList(list);
+    /*
     printf("sorting stars:    \t");
     
     start = clock();
@@ -98,10 +99,12 @@ int main(int argc, char **argv)
     
     saveToFile(N,timings);
     
+    
     free(stars);
     for (i=0; i<N; i++)
         free(matrix[i]);
     free(matrix);
-    
+     */
+    free(timings);
     return 0;
 }

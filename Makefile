@@ -6,3 +6,4 @@ exam: main.c
 
 clean:
 	rm exam
+	rm -rf exam.dSYM/

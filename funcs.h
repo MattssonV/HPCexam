@@ -16,7 +16,19 @@
 #include <string.h>
 #include <time.h>
 
+//typedef struct node_t;
+//typedef struct node;
+
+typedef struct node {
+    star_t star;
+    struct node *next;
+}node,*nodeP;
+
 void create_random_array(star_t * array, int size);
+nodeP createStarList(int N);
+nodeP createNode(int ind);
+star_t createStar(int ind);
+void printList(nodeP n);
 int randChar();
 void sort(star_t* array, int n);
 float distance(star_t star);
