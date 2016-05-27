@@ -56,17 +56,19 @@ int main(int argc, char **argv)
     
     //print_stars(stars, N);
     printList(list);
-    /*
+    
     printf("sorting stars:    \t");
     
     start = clock();
     
-    sort(stars, N);
+    //sort(stars, N);
+    list = sortList(list);
     
     end = clock();
     timings[1] = printtime(start, end);
     //print_stars(stars, N);
-    
+    printList(list);
+    /*
     printf("allocating matrix: \t");
     start = clock();
     

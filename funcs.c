@@ -48,6 +48,7 @@ nodeP createStarList(int N){
 nodeP createNode(int ind){
     nodeP new = (nodeP) malloc(sizeof(node));
     new->star = createStar(ind);
+    new->dist = distance(new->star);
     new->next = NULL;
     ind++;
     return new;
@@ -67,9 +68,15 @@ star_t createStar(int ind){
 }
 
 void printList(nodeP n) {
+    nodeP nn = n;
     while (n != NULL) {
         printf("%s\t", n->star.designation);
         n = n->next;
+    }
+    printf("\n");
+    while (nn != NULL) {
+        printf("%f\t", nn->dist);
+        nn = nn->next;
     }
     printf("\n");
 }
@@ -136,6 +143,38 @@ void sort(star_t* array, int n)
         }
     free(stars_temp);
 }
+
+nodeP sortList(nodeP list)
+{
+    
+    if(list == NULL || list->next == NULL)
+        return list;
+    nodeP curr, smallest,smallestPrev,prev;
+    curr = list;
+    smallest = list;
+    prev = list;
+    smallestPrev = list;
+    while(curr != NULL) {
+        if(curr->dist < smallest->dist) {
+            smallestPrev = prev;
+            smallest = curr;
+        }
+        prev = curr;
+        curr = curr->next;
+        
+    }
+    nodeP tmp;
+    if(smallest != list)
+    {
+        smallestPrev->next = list;
+        tmp = list->next;
+        list->next = smallest->next;
+        smallest->next = tmp;
+    }
+    smallest->next = sortList(smallest->next);
+    return smallest;
+}
+
 
 float_t distance(star_t star){
     float_t x,y,z;

@@ -21,6 +21,7 @@
 
 typedef struct node {
     star_t star;
+    float_t dist;// = distance(star);
     struct node *next;
 }node,*nodeP;
 
@@ -31,6 +32,7 @@ star_t createStar(int ind);
 void printList(nodeP n);
 int randChar();
 void sort(star_t* array, int n);
+nodeP sortList(nodeP list);
 float distance(star_t star);
 void print_stars(star_t* array, int n);
 
