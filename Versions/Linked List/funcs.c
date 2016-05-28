@@ -75,7 +75,7 @@ void printList(nodeP n) {
     }
     printf("\n");
     while (nn != NULL) {
-        printf("%.f\t", nn->dist);
+        printf("%f\t", nn->dist);
         nn = nn->next;
     }
     printf("\n");
@@ -142,6 +142,47 @@ void sort(star_t* array, int n)
             }
         }
     free(stars_temp);
+}
+
+void merge_sort(star_t* list_to_sort, int N) {
+    if(N == 1) {
+        // Only one element, no sorting needed. Just return directly in this case.
+        return;
+    }
+    int n1 = N / 2;
+    int n2 = N - n1;
+    // Allocate new lists
+    star_t* list1 = (star_t*)malloc(n1*sizeof(star_t));
+    star_t* list2 = (star_t*)malloc(n2*sizeof(star_t));
+    int i;
+    for(i = 0; i < n1; i++)
+        list1[i] = list_to_sort[i];
+    for(i = 0; i < n2; i++)
+        list2[i] = list_to_sort[n1+i];
+    // Sort list1 and list2
+    merge_sort(list1, n1);
+    merge_sort(list2, n2);
+    // Merge!
+    int i1 = 0;
+    int i2 = 0;
+    i = 0;
+    while(i1 < n1 && i2 < n2) {
+        if(distance(list1[i1]) < distance(list2[i2])) {
+            list_to_sort[i] = list1[i1];
+            i1++;
+        }
+        else {
+            list_to_sort[i] = list2[i2];
+            i2++;
+        }
+        i++;
+    }
+    while(i1 < n1)
+        list_to_sort[i++] = list1[i1++];
+    while(i2 < n2)
+        list_to_sort[i++] = list2[i2++];
+    free(list1);
+    free(list2);
 }
 
 nodeP sortList(nodeP list)

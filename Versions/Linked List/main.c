@@ -40,11 +40,9 @@ int main(int argc, char **argv)
     }
     else if (argc==2){
         N = atoi(argv[1]);
-        stars = (star_t *) malloc(N*sizeof(star_t));
         printf("creating random stars: \t");
         start = clock();
-        create_random_array(stars,N);
-        //list = createStarList(N);
+        list = createStarList(N);
         end = clock();
         timings[0] = printtime(start, end);
     }
@@ -56,20 +54,17 @@ int main(int argc, char **argv)
     
     
     //print_stars(stars, N);
-    //printList(list);
+    printList(list);
     
     printf("sorting stars:    \t");
     
     start = clock();
-    merge_sort(stars,N);
-    //sort(stars, N);
-    //list = sortList(list);
-    
+    list = sortList(list);
     end = clock();
     timings[1] = printtime(start, end);
     //print_stars(stars, N);
-    //printList(list);
-    
+    printList(list);
+    /*
     printf("allocating matrix: \t");
     start = clock();
     
@@ -107,7 +102,7 @@ int main(int argc, char **argv)
     for (i=0; i<N; i++)
         free(matrix[i]);
     free(matrix);
-    
+    */
     free(timings);
     return 0;
 }
