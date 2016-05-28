@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <string.h>
 
+
 void create_random_array(star_t * stars, int size)
 {
     int i;
@@ -28,30 +29,6 @@ void create_random_array(star_t * stars, int size)
         stars[i].position.z = (float_t) rand()/RAND_MAX * 3e3 - 1.5e3;
         stars[i].magnitude = (float_t) rand()/RAND_MAX*30 - 10;
     }
-}
-
-nodeP createStarList(int N){
-    nodeP new, top, last;
-    top = NULL; int i, ind;
-    for (i=0; i<N; i++) {
-        new = createNode(ind);
-        ind++;
-        if (top==NULL)
-            top = new;
-        else
-            last->next = new;
-        last = new;
-    }
-    return top;
-}
-
-nodeP createNode(int ind){
-    nodeP new = (nodeP) malloc(sizeof(node));
-    new->star = createStar(ind);
-    new->dist = distance(new->star);
-    new->next = NULL;
-    ind++;
-    return new;
 }
 
 star_t createStar(int ind){
@@ -75,7 +52,7 @@ void printList(nodeP n) {
     }
     printf("\n");
     while (nn != NULL) {
-        printf("%.f\t", nn->dist);
+        printf("%f\t", nn->dist);
         nn = nn->next;
     }
     printf("\n");
@@ -123,56 +100,45 @@ float_t starfunc(star_t a, star_t b)
   return sqrt(x + y + x*y/0.6);
 }
 
-
-void sort(star_t* array, int n) 
-{
-    star_t *stars_temp = (star_t *) malloc(n*sizeof(star_t));
-    float_t a, b;
-    int i, j;
-    star_t temp;
-    for (i=0; i<n-1; ++i)
-        for (j=0; j<n-1; ++j) {
-            a = distance(array[j]);
-            b = distance(array[j+1]);
-            array[i].index++;
-            if (a>b){
-                temp = array[j];
-                array[j] = array[j+1];
-                array[j+1] = temp;
-            }
-        }
-    free(stars_temp);
-}
-
-nodeP sortList(nodeP list)
-{
-    
-    if(list == NULL || list->next == NULL)
-        return list;
-    nodeP curr, smallest,smallestPrev,prev;
-    curr = list;
-    smallest = list;
-    prev = list;
-    smallestPrev = list;
-    while(curr != NULL) {
-        if(curr->dist < smallest->dist) {
-            smallestPrev = prev;
-            smallest = curr;
-        }
-        prev = curr;
-        curr = curr->next;
-        
+void merge_sort(star_t* list_to_sort, int N) {
+    if(N == 1) {
+        // Only one element, no sorting needed. Just return directly in this case.
+        return;
     }
-    nodeP tmp;
-    if(smallest != list)
-    {
-        smallestPrev->next = list;
-        tmp = list->next;
-        list->next = smallest->next;
-        smallest->next = tmp;
+    int n1 = N / 2;
+    int n2 = N - n1;
+    // Allocate new lists
+    star_t* list1 = (star_t*)malloc(n1*sizeof(star_t));
+    star_t* list2 = (star_t*)malloc(n2*sizeof(star_t));
+    int i;
+    for(i = 0; i < n1; i++)
+        list1[i] = list_to_sort[i];
+    for(i = 0; i < n2; i++)
+        list2[i] = list_to_sort[n1+i];
+    // Sort list1 and list2
+    merge_sort(list1, n1);
+    merge_sort(list2, n2);
+    // Merge!
+    int i1 = 0;
+    int i2 = 0;
+    i = 0;
+    while(i1 < n1 && i2 < n2) {
+        if(distance(list1[i1]) < distance(list2[i2])) {
+            list_to_sort[i] = list1[i1];
+            i1++;
+        }
+        else {
+            list_to_sort[i] = list2[i2];
+            i2++;
+        }
+        i++;
     }
-    smallest->next = sortList(smallest->next);
-    return smallest;
+    while(i1 < n1)
+        list_to_sort[i++] = list1[i1++];
+    while(i2 < n2)
+        list_to_sort[i++] = list2[i2++];
+    free(list1);
+    free(list2);
 }
 
 
@@ -184,14 +150,40 @@ float_t distance(star_t star){
     return sqrt(x*x+y*y+z*z);
 }
 
-void fill_matrix(star_t * array, float_t **matrix, int size){
-    float_t a,b;
+star_t padStar(int ind){
+    star_t star;
+    star.index = ind;
+    star.spectralType = 'O';//NULL;//(char) randChar();
+    star.subType = 0;//(unsigned short) rand() % 10;
+    sprintf(star.designation, "%c%d.%d", star.spectralType, star.subType, star.index);
+    star.position.x = 0;//(float_t) rand()/RAND_MAX * 1e5 - 5e4;
+    star.position.y = 0;//(float_t) rand()/RAND_MAX * 1e5 - 5e4;
+    star.position.z = 0;//(float_t) rand()/RAND_MAX * 3e3 - 1.5e3;
+    star.magnitude = 0;//(float_t) rand()/RAND_MAX*30 - 10;
+    return star;
+}
+
+void fill_matrix(star_t * array, float_t **matrix, int size, int pad){
+    float_t a,b,c,d,e,f,g,h;
     int i,j;
-    for (i=0; i<size; i++)
-        for (j=0; j<size; j++) {
+    for (i=0; i<size+pad; i++)
+        for (j=0; j<size+pad; j+=4) {
             a = star_distance(array[i],array[j]);
             b = starfunc(array[i],array[j]);
             matrix[i][j] = a+b;
+            //matrix[j][i] = a+b;
+            c = star_distance(array[i],array[j+1]);
+            d = starfunc(array[i],array[j+1]);
+            matrix[i][j+1] = c+d;
+            //matrix[j+1][i+1] = a+b;
+            e = star_distance(array[i],array[j+2]);
+            f = starfunc(array[i],array[j+2]);
+            matrix[i][j+2] = e+f;
+            //matrix[j+2][i+2] = a+b;
+            g = star_distance(array[i],array[j+3]);
+            h = starfunc(array[i],array[j+3]);
+            matrix[i][j+3] = g+h;
+            //matrix[j+3][i+3] = a+b;
             //if (i==j || (i==1&&j==1)) {
             //    printf("%f %d %d\n",a,i,j);
             //}

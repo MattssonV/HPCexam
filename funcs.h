@@ -37,7 +37,8 @@ nodeP sortList(nodeP list);
 float distance(star_t star);
 void print_stars(star_t* array, int n);
 
-void fill_matrix(star_t * array, float_t **matrix, int size);
+star_t padStar(int ind);
+void fill_matrix(star_t * array, float_t **matrix, int size, int pad);
 float_t star_distance(star_t star1, star_t star2);
 void print_matrix(float_t** matrix, int n);
 

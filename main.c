@@ -14,6 +14,7 @@
 #include <time.h>
 #include "funcs.h"
 #include "ref_input.h"
+#define LOOP_UNROLL 4
 
 int randChar();
 
@@ -28,10 +29,9 @@ int main(int argc, char **argv)
 {
     srand(time(NULL));
     
-    int N, i;
+    int N, i, pad;
     clock_t start, end;
     star_t *stars;
-    nodeP list;
     double *timings = (double *) malloc(5*sizeof(double));
     if(argc > 2)
     {
@@ -40,7 +40,9 @@ int main(int argc, char **argv)
     }
     else if (argc==2){
         N = atoi(argv[1]);
-        stars = (star_t *) malloc(N*sizeof(star_t));
+        pad = N%LOOP_UNROLL;
+        printf("%d, %d, %d ",pad,N,LOOP_UNROLL);
+        stars = (star_t *) malloc((N+pad)*sizeof(star_t));
         printf("creating random stars: \t");
         start = clock();
         create_random_array(stars,N);
@@ -50,6 +52,7 @@ int main(int argc, char **argv)
     }
     else {
         N = 7;
+        pad = 0;
         stars = (star_t *) malloc(N*sizeof(star_t));
         create_ref_star_array(stars,N);
     }
@@ -69,14 +72,19 @@ int main(int argc, char **argv)
     timings[1] = printtime(start, end);
     //print_stars(stars, N);
     //printList(list);
-    
+    if (pad != 0) {
+        for (i=0; i<pad; i++) {
+            stars[N+i] = padStar(N+i);
+        }
+    }
+   //print_stars(stars, N+pad);
     printf("allocating matrix: \t");
     start = clock();
     
     float_t **matrix;
-    matrix = (float_t **) malloc(N*sizeof(float_t*));
-    for (i=0; i<N; i++) {
-        matrix[i] = (float_t *) malloc(N*sizeof(float_t));
+    matrix = (float_t **) malloc((N+pad)*sizeof(float_t*));
+    for (i=0; i<N+pad; i++) {
+        matrix[i] = (float_t *) malloc((N+pad)*sizeof(float_t));
     }
     end = clock();
     timings[2] = printtime(start, end);
@@ -84,7 +92,7 @@ int main(int argc, char **argv)
     
     printf("filling matrix: \t");
     start = clock();
-    fill_matrix(stars, matrix, N);
+    fill_matrix(stars, matrix, N, pad);
     
     end = clock();
     timings[3] = printtime(start, end);
