@@ -8,6 +8,7 @@
  *
  **/
 
+#include <immintrin.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "funcs.h"
@@ -15,6 +16,7 @@
 #include <unistd.h>
 #include <string.h>
 
+#define vec_len 8
 
 void create_random_array(star_t * stars, int size)
 {
@@ -150,19 +152,108 @@ star_t padStar(int ind){
 }
 
 void fill_matrix(star_t * array, float_t **matrix, int size){
-    float_t a,b;
+    //float_t a,b;
     int i,j;
-    for (i=0; i<size; i++)
+    for (i=0; i<size; i++){
         for (j=0; j<size; j++) {
-            a = star_distance(array[i],array[j]);
-            b = starfunc(array[i],array[j]);
-            matrix[i][j] = a+b;
-            //matrix[i][j] = a+b;
+            //a = star_distance(array[i],array[j]);
+            //b = starfunc(array[i],array[j]);
+            matrix[i][j] = starfunc(array[i],array[j])+star_distance(array[i],array[j]);//a+b;
+            //matrix[j][i] = a+b;
             //if (i==j || (i==1&&j==1)) {
             //    printf("%f %d %d\n",a,i,j);
             //}
         }
+    }
+    //matrix[0][1] = 2.;
 }
+
+float_t * getXvec(star_t * array,int N){
+    float_t *xvec=(float_t *) malloc((N)*sizeof(float_t));
+    int i;
+    for (i=0; i<N; i++) {
+        xvec[i]=array[i].position.x;
+    }
+    return xvec;
+}
+
+float_t * getYvec(star_t * array,int N){
+    float_t *xvec=(float_t *) malloc((N)*sizeof(float_t));
+    int i;
+    for (i=0; i<N; i++) {
+        xvec[i]=array[i].position.y;
+    }
+    return xvec;
+}
+
+float_t * getZvec(star_t * array,int N){
+    float_t *xvec=(float_t *) malloc((N)*sizeof(float_t));
+    int i;
+    for (i=0; i<N; i++) {
+        xvec[i]=array[i].position.z;
+    }
+    return xvec;
+}
+
+void fill_mat_avx(star_t * array, float_t **matrix, int size, float_t *xv, float_t * yv, float_t * zv){
+    int i,j;
+    __m256 xi,yi,zi,xj,yj,zj,x1,y1,z1,x2,y2,z2,dist,dist2,dist3;
+    for (i=0; i<size; i++) {
+        //__m256 xi = _mm256_loadu_ps((float_t *)&array[i].position.x);
+        //__m256 yi = _mm256_loadu_ps((float_t *)&array[i].position.y);
+        //__m256 zi = _mm256_loadu_ps((float_t *)&array[i].position.z);
+        
+        xi = _mm256_loadu_ps(xv+i);
+        yi = _mm256_loadu_ps(yv+i);
+        zi = _mm256_loadu_ps(zv+i);
+        
+        /*
+        //__m256 xi = _mm256_set_ps(array[i].position.x,array[i].position.x,array[i].position.x,array[i].position.x,
+                                  array[i].position.x,array[i].position.x,array[i].position.x,array[i].position.x);
+        //__m256 yi = _mm256_set_ps(array[i].position.y,array[i].position.y,array[i].position.y,array[i].position.y,
+                                  array[i].position.y,array[i].position.y,array[i].position.y,array[i].position.y);
+        //__m256 zi = _mm256_set_ps(array[i].position.z,array[i].position.z,array[i].position.z,array[i].position.z,
+                                  array[i].position.z,array[i].position.z,array[i].position.z,array[i].position.z);
+        */
+        //__m256i sf1 = _mm_256_loadu_si256((int *)&array[i].subType);
+        for (j=0; j<size; j++) {
+            xj = _mm256_loadu_ps(xv+j);
+            yj = _mm256_loadu_ps(yv+j);
+            zj = _mm256_loadu_ps(zv+j);
+            
+            /*
+            __m256 xj = _mm256_set_ps(array[j].position.x,array[j+1].position.x,array[j+2].position.x,array[j+3].position.x,
+                                      array[j+4].position.x,array[j+5].position.x,array[j+6].position.x,array[j+7].position.x);
+            __m256 yj = _mm256_set_ps(array[j].position.y,array[j+1].position.y,array[j+2].position.y,array[j+3].position.y,
+                                      array[j+4].position.y,array[j+5].position.y,array[j+6].position.y,array[j+7].position.y);
+            __m256 zj = _mm256_set_ps(array[j].position.z,array[j+1].position.z,array[j+2].position.z,array[j+3].position.z,
+                                      array[j+4].position.z,array[j+5].position.z,array[j+6].position.z,array[j+7].position.z);
+            //*/
+            x1 = _mm256_sub_ps(xi,xj);
+            y1 = _mm256_sub_ps(yi,yj);
+            z1 = _mm256_sub_ps(zi,zj);
+            x2 = _mm256_mul_ps(x1,x1);
+            y2 = _mm256_mul_ps(y1,y1);
+            z2 = _mm256_mul_ps(z1,z1);
+            dist2 = _mm256_add_ps(x2,y2);
+            dist3 = _mm256_add_ps(dist2,z2);
+            dist = _mm256_sqrt_ps(dist3);
+            /*
+            float* df = (float *)&dist;
+            printf("\n");
+            for (i=0; i<vec_len; i++) {
+                printf("%f ",df[i]);
+            }printf("\n");
+            printf("%f %f %f %f %f %f %f %f\n",
+                   df[0], df[1], df[2], df[3], df[4], df[5], df[6], df[7]);
+            //*/
+            _mm256_storeu_ps(&matrix[i][j],dist);
+            //_mm256_storeu_ps(&matrix[j][i],dist);
+        }
+    }
+    
+}
+
 
 /*
 void fill_matrix(star_t * array, float_t **matrix, int size, int pad){

@@ -8,6 +8,7 @@
  *
  **/
 
+#include <immintrin.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -91,9 +92,25 @@ int main(int argc, char **argv)
     
     end = clock();
     timings[3] = printtime(start, end);
-    //print_matrix(matrix, N);
+    print_matrix(matrix, N);
+    float *xv,*yv,*zv;
+    
+    start = clock();
+    xv=getXvec(stars,N);
+    yv= getYvec(stars,N);
+    zv= getZvec(stars,N);
+    end = clock();
+    
+    printtime(start,end);
     
     
+    start = clock();
+    fill_mat_avx(stars, matrix, N,xv,yv,zv);
+    end = clock();
+    
+    print_matrix(matrix, N);
+    
+    timings[3] = printtime(start, end);
     printf("generating histogram: \t");
     start = clock();
     int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
