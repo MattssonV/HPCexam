@@ -321,6 +321,7 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
             if (temp > maxi)
                 maxi = temp;
         }
+    printf("\n");
     for (i=0; i<(mat_size-2)*(mat_size-2); i++) {
         printf("%.f ",von_neu[i]);
     }
@@ -343,19 +344,25 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
 }
 /* */
 hist_param_t gen_hist_opt(float_t *matrix, int *histogram, int size, int hist_size){
-    int i,j,loop=0;
+    int i,j, k, rem,blabla,loop=0;
     hist_param_t parameters;
     parameters.hist_size = hist_size;
-    float_t * von_neu;
+    float_t * von_neu, *df;
+    float_t temp,a;
     von_neu = (float_t *) malloc((size-2)*(size-2)*sizeof(float_t));
-    __m256 c,n,w,s,e,ns,es,ss,ws,nsq,wsq,ssq,esq,nv,wv,sv,ev,div,a1,a2,atot,res;
+    __m256 c,n,w,s,e,ns,es,ss,ws,nsq,wsq,ssq,esq,nv,wv,sv,ev,div,a1,a2,atot,res,min,max;
     div = _mm256_set1_ps(0.25);
+    min = _mm256_set1_ps(1e10);
+    max = _mm256_set1_ps(0.);
+    rem = (size-2)%vec_len;
+    blabla = size-1-rem;
+    
     for (i=1; i<size-1; i++) {
-        for (j=1; j<size-1; j+=vec_len) {
+        for (j=1; j<size-vec_len; j+=vec_len) {
             c = _mm256_loadu_ps(matrix+i*size+j);
             n = _mm256_loadu_ps(matrix+(i-1)*size+j); //up
             w = _mm256_loadu_ps(matrix+i*size+j-1); //left
-            s = _mm256_loadu_ps(matrix+i*(size+1)+j); //down
+            s = _mm256_loadu_ps(matrix+(i+1)*size+j); //down
             e = _mm256_loadu_ps(matrix+i*size+j+1); //right
             
             ns = _mm256_sub_ps(n,c);
@@ -378,12 +385,32 @@ hist_param_t gen_hist_opt(float_t *matrix, int *histogram, int size, int hist_si
             atot = _mm256_add_ps(a1,a2);
             
             res = _mm256_mul_ps(atot,div);
-            
-            _mm256_storeu_ps(von_neu+loop*vec_len,res);
-            loop++;
+            min = _mm256_min_ps(res,min);
+            max = _mm256_max_ps(res,max);
+            _mm256_storeu_ps(von_neu+(i-1)*(size-2)+j-1,res);
+            //float* df = (float *)&res;
+            //printf("\n");
+            //for (k=0; k<vec_len; k++) {
+                //printf("%.f ",df[k]);
+              //  von_neu[loop]=df[k];
+                loop++;
+            }//printf("\n");
         }
-    }
-    
+        //printf("%d %d %d %d \n",i,j,blabla,rem);
+        /*
+        if (rem!=0) {
+            for (k=0; k<rem; k++) {
+                a = matrix[i*size+size-1-rem+k];
+                temp = (abs(matrix[i*size+size-1-rem+k-1]-a)+abs(matrix[(i-1)*size+size-1-rem+k]-a)+abs(matrix[i*size+size-1-rem+k+1]-a)+abs(matrix[(i+1)*size+size-1-rem+k]-a))/4;
+                printf("%.f\t",temp);
+                von_neu[(i-1)*size+j+k] = temp;
+            }
+        }
+         //*/
+    //}
+    printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");
+    printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");
+    printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");
     for (i=0; i<(size-2)*(size-2); i++) {
         printf("%.f ",von_neu[i]);
     }
