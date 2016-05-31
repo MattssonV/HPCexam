@@ -205,19 +205,26 @@ float_t * getSFvec(star_t * array,int N){
 }
 
 void fill_mat_avx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t * zv, float_t * sf){
-    int i,j;
+    int i,j,a,k;
     __m256 xi,yi,zi,xj,yj,zj,x1,y1,z1,x2,y2,z2,dist,dist2,dist3,sfi,sfj,sf1,sf2,sf3,sfm,sfr,res,cDiv;
     float con = 0.6;
-    
+    cDiv = _mm256_set1_ps(con);
     for (i=0; i<size; i++) {
+        /*
         xi = _mm256_loadu_ps(xv+i);
         yi = _mm256_loadu_ps(yv+i);
         zi = _mm256_loadu_ps(zv+i);
         sfi = _mm256_loadu_ps(sf+i);
+        */
+        xi = _mm256_set1_ps(xv[i]);
+        yi = _mm256_set1_ps(yv[i]);
+        zi = _mm256_set1_ps(zv[i]);
+        sfi = _mm256_set1_ps(sf[i]);
         //__m256i sf1 = _mm_256_loadu_si256((int *)&array[i].subType);
+        a=0;
         for (j=0; j<size; j+=vec_len) {
             //printf("a ");
-            cDiv = _mm256_set1_ps(con);
+            
             xj = _mm256_loadu_ps(xv+j);
             yj = _mm256_loadu_ps(yv+j);
             zj = _mm256_loadu_ps(zv+j);
@@ -240,11 +247,11 @@ void fill_mat_avx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t 
             dist = _mm256_sqrt_ps(dist3);
             
             res = _mm256_add_ps(dist,sfr);
-            /*
-            float* df = (float *)&dist;
+            /* 
+            float* df = (float *)&res;
             printf("\n");
-            for (i=0; i<vec_len; i++) {
-                printf("%f ",df[i]);
+            for (k=0; k<vec_len; k++) {
+                printf("%f ",df[k]);
             }printf("\n");
             printf("%f %f %f %f %f %f %f %f\n",
                    df[0], df[1], df[2], df[3], df[4], df[5], df[6], df[7]);
@@ -256,7 +263,8 @@ void fill_mat_avx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t 
                 //_mm256_storeu_ps(&matrix[a],dist);
                 a++;
             } */
-            _mm256_storeu_ps(matrix+i+j,res);//&matrix[i*size+j],dist);
+            _mm256_storeu_ps(matrix+i*size+j,res);
+            a++;//&matrix[i*size+j],dist);
             //_mm256_storeu_ps(&matrix[j][i],dist);
         }
     }
@@ -347,7 +355,7 @@ void print_mat_vec(float_t * matrix, int N){
     {
         for(j = 0 ; j < N ; j++)
             printf("%.2f " , matrix[i*N+j]);
-        putchar('\n');
+        printf("\n");
     }
     //printf("\n");
 }

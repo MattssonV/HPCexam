@@ -92,7 +92,7 @@ int main(int argc, char **argv)
     
     end = clock();
     timings[3] = printtime(start, end);
-    print_matrix(matrix, N);
+    //print_matrix(matrix, N);
     float *xv,*yv,*zv,*sf;
     
     start = clock();
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
     end = clock();
     
     //print_matrix(matrix, N);
-    print_mat_vec(matrix2,N);
+    //print_mat_vec(matrix2,N);
     
     timings[3] = printtime(start, end);
     printf("generating histogram: \t");
