@@ -121,7 +121,7 @@ int main(int argc, char **argv)
     timings[4] = printtime(start, end);
     
     start = clock();
-    int *hist = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
+    int *hist = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
     hist_param_t para = gen_hist_opt(matrix2,hist,N,NUM_HIST_BOXES);
     
     end = clock();
@@ -129,6 +129,7 @@ int main(int argc, char **argv)
     printtime(start,end);
     
     display_histogram(histogram, histparams);
+    display_histogram(hist,para);
     
     saveToFile(N,timings);
     

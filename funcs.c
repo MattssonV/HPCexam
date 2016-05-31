@@ -321,10 +321,13 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
             if (temp > maxi)
                 maxi = temp;
         }
+    /*
     printf("\n");
     for (i=0; i<(mat_size-2)*(mat_size-2); i++) {
         printf("%.f ",von_neu[i]);
     }
+    
+    // */
     //printf("\n%f,   %f",mini,maxi);
     parameters.min = mini;
     parameters.max = maxi;
@@ -344,11 +347,11 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
 }
 /* */
 hist_param_t gen_hist_opt(float_t *matrix, int *histogram, int size, int hist_size){
-    int i,j, k, rem,blabla,loop=0;
+    int i,j, k, rem,blabla,loop=0,a;
     hist_param_t parameters;
     parameters.hist_size = hist_size;
-    float_t * von_neu, *df;
-    float_t temp,a;
+    float_t * von_neu, *df, *mini, *maxi;
+    float_t mi=1e7,ma=0,bin_size;
     von_neu = (float_t *) malloc((size-2)*(size-2)*sizeof(float_t));
     __m256 c,n,w,s,e,ns,es,ss,ws,nsq,wsq,ssq,esq,nv,wv,sv,ev,div,a1,a2,atot,res,min,max;
     div = _mm256_set1_ps(0.25);
@@ -408,12 +411,41 @@ hist_param_t gen_hist_opt(float_t *matrix, int *histogram, int size, int hist_si
         }
          //*/
     //}
-    printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");
-    printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");
-    printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");printf("\n");
-    for (i=0; i<(size-2)*(size-2); i++) {
+    /*
+        for (i=0; i<(size-2)*(size-2); i++) {
         printf("%.f ",von_neu[i]);
     }
+    //*/
+    //if (size-2>7) {
+    mini = (float_t *) &min;
+    maxi = (float_t *) &max;
+    for (i=0; i<vec_len; i++) {
+        if (mi > mini[i])
+            mi = mini[i];
+        if (ma < maxi[i])
+            ma = maxi[i];
+    }
+    if (size-2<vec_len) {
+        for (i=0; i<(size-2)*(size-2); i++) {
+            if (mi>von_neu[i]) {
+                mi = von_neu[i];
+            }
+            if (ma<von_neu[i]) {
+                ma=von_neu[i];
+            }
+        }
+        histogram[9]++;
+    }
+    bin_size = (ma-mi)/hist_size;
+    
+    for (i=0; i<(size-2)*(size-2); i++) {
+        a = (int) (von_neu[i]-mi)/bin_size;
+        histogram[a]++;
+    }
+    //histogram[9]++;
+    parameters.bin_size = bin_size;
+    parameters.min = mi;
+    parameters.max = ma;
     
     return parameters;
 } //*/
