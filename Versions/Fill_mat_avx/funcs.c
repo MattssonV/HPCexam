@@ -205,7 +205,7 @@ float_t * getSFvec(star_t * array,int N){
 }
 
 void fill_mat_avx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t * zv, float_t * sf){
-    int i,j,a;
+    int i,j,a,k;
     __m256 xi,yi,zi,xj,yj,zj,x1,y1,z1,x2,y2,z2,dist,dist2,dist3,sfi,sfj,sf1,sf2,sf3,sfm,sfr,res,cDiv;
     float con = 0.6;
     cDiv = _mm256_set1_ps(con);
@@ -247,7 +247,7 @@ void fill_mat_avx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t 
             dist = _mm256_sqrt_ps(dist3);
             
             res = _mm256_add_ps(dist,sfr);
-            /*
+            /* 
             float* df = (float *)&res;
             printf("\n");
             for (k=0; k<vec_len; k++) {
@@ -271,6 +271,63 @@ void fill_mat_avx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t 
     
 }
 
+
+/*
+void fill_matrix(star_t * array, float_t **matrix, int size, int pad){
+    float_t a,b;//,c,d,e,f,g,h;
+    int i,j;
+    for (i=0; i<size; i++){
+        //printf("b ");
+        for (j=i; j<size; j+=10) {
+            //printf("a ");
+            a = star_distance(array[i],array[j]);
+            b = starfunc(array[i],array[j]);
+            matrix[i][j] = a+b;
+            matrix[j][i] = a+b;
+            a = star_distance(array[i],array[j+1]);
+            b = starfunc(array[i],array[j+1]);
+            matrix[i][j+1] = a+b;
+            matrix[j+1][i] = a+b;
+            a = star_distance(array[i],array[j+2]);
+            b = starfunc(array[i],array[j+2]);
+            matrix[i][j+2] = a+b;
+            matrix[j+2][i] = a+b;
+            a = star_distance(array[i],array[j+3]);
+            b = starfunc(array[i],array[j+3]);
+            matrix[i][j+3] = a+b;
+            matrix[j+3][i] = a+b;
+            a = star_distance(array[i],array[j+4]);
+            b = starfunc(array[i],array[j+4]);
+            matrix[i][j+4] = a+b;
+            matrix[j+4][i] = a+b;
+            a = star_distance(array[i],array[j+5]);
+            b = starfunc(array[i],array[j+5]);
+            matrix[i][j+5] = a+b;
+            matrix[j+5][i] = a+b;
+            a = star_distance(array[i],array[j+6]);
+            b = starfunc(array[i],array[j+6]);
+            matrix[i][j+6] = a+b;
+            matrix[j+6][i] = a+b;
+            a = star_distance(array[i],array[j+7]);
+            b = starfunc(array[i],array[j+7]);
+            matrix[i][j+7] = a+b;
+            matrix[j+7][i] = a+b;
+            a = star_distance(array[i],array[j+8]);
+            b = starfunc(array[i],array[j+8]);
+            matrix[i][j+8] = a+b;
+            matrix[j+8][i] = a+b;
+            a = star_distance(array[i],array[j+9]);
+            b = starfunc(array[i],array[j+9]);
+            matrix[i][j+9] = a+b;
+            matrix[j+9][i] = a+b;
+            //matrix[j+3][i+3] = a+b;
+            //if (i==j || (i==1&&j==1)) {
+            //    printf("%f %d %d\n",a,i,j);
+            //}
+        }
+    }
+}
+*/
 float_t star_distance(star_t star1, star_t star2){
     float_t x,y,z;
     x = star1.position.x-star2.position.x;
@@ -321,9 +378,6 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
             if (temp > maxi)
                 maxi = temp;
         }
-    for (i=0; i<(mat_size-2)*(mat_size-2); i++) {
-        printf("%.f ",von_neu[i]);
-    }
     //printf("\n%f,   %f",mini,maxi);
     parameters.min = mini;
     parameters.max = maxi;
@@ -341,56 +395,6 @@ hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, 
     free(von_neu);
     return parameters;
 }
-/* */
-hist_param_t gen_hist_opt(float_t *matrix, int *histogram, int size, int hist_size){
-    int i,j,loop=0;
-    hist_param_t parameters;
-    parameters.hist_size = hist_size;
-    float_t * von_neu;
-    von_neu = (float_t *) malloc((size-2)*(size-2)*sizeof(float_t));
-    __m256 c,n,w,s,e,ns,es,ss,ws,nsq,wsq,ssq,esq,nv,wv,sv,ev,div,a1,a2,atot,res;
-    div = _mm256_set1_ps(0.25);
-    for (i=1; i<size-1; i++) {
-        for (j=1; j<size-1; j+=vec_len) {
-            c = _mm256_loadu_ps(matrix+i*size+j);
-            n = _mm256_loadu_ps(matrix+(i-1)*size+j); //up
-            w = _mm256_loadu_ps(matrix+i*size+j-1); //left
-            s = _mm256_loadu_ps(matrix+i*(size+1)+j); //down
-            e = _mm256_loadu_ps(matrix+i*size+j+1); //right
-            
-            ns = _mm256_sub_ps(n,c);
-            ws = _mm256_sub_ps(w,c);
-            ss = _mm256_sub_ps(s,c);
-            es = _mm256_sub_ps(e,c);
-            
-            nsq = _mm256_mul_ps(ns,ns);
-            wsq = _mm256_mul_ps(ws,ws);
-            ssq = _mm256_mul_ps(ss,ss);
-            esq = _mm256_mul_ps(es,es);
-            
-            nv = _mm256_sqrt_ps(nsq);
-            wv = _mm256_sqrt_ps(wsq);
-            sv = _mm256_sqrt_ps(ssq);
-            ev = _mm256_sqrt_ps(esq);
-            
-            a1 = _mm256_add_ps(nv,wv);
-            a2 = _mm256_add_ps(sv,ev);
-            atot = _mm256_add_ps(a1,a2);
-            
-            res = _mm256_mul_ps(atot,div);
-            
-            _mm256_storeu_ps(von_neu+loop*vec_len,res);
-            loop++;
-        }
-    }
-    
-    for (i=0; i<(size-2)*(size-2); i++) {
-        printf("%.f ",von_neu[i]);
-    }
-    
-    return parameters;
-} //*/
-
 
 void display_histogram(int *histogram, hist_param_t histparams)
 {

@@ -49,7 +49,6 @@ void print_matrix(float_t** matrix, int n);
 void print_mat_vec(float_t * matrix, int N);
 
 hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, int hist_size);
-hist_param_t gen_hist_opt(float_t *matrix, int *histogram, int size, int hist_size);
 
 void display_histogram(int *histogram, hist_param_t histparams);
 int fileIsEmpty(FILE * fp);

@@ -66,15 +66,15 @@ int main(int argc, char **argv)
     
     end = clock();
     timings[1] = printtime(start, end);
-    /* */
+    /*
     //print_stars(stars, N);
     //printList(list);
    
-        //for(i=0;i<10;i++)
-          //  stars[N+i] = padStar(N+i);
+        for(i=0;i<10;i++)
+            stars[N+i] = padStar(N+i);
     
     //print_stars(stars, N+pad);
-     //*/
+     */
     printf("allocating matrix: \t");
     start = clock();
     
@@ -120,14 +120,6 @@ int main(int argc, char **argv)
     end = clock();
     timings[4] = printtime(start, end);
     
-    start = clock();
-    int *hist = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
-    hist_param_t para = gen_hist_opt(matrix2,hist,N,NUM_HIST_BOXES);
-    
-    end = clock();
-    
-    printtime(start,end);
-    
     display_histogram(histogram, histparams);
     
     saveToFile(N,timings);
@@ -137,7 +129,6 @@ int main(int argc, char **argv)
     for (i=0; i<N; i++)
         free(matrix[i]);
     free(matrix);
-    free(matrix2);
     
     free(timings);
     return 0;

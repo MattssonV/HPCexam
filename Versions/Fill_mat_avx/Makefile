@@ -8,6 +8,6 @@ exam: main.c
 	$(CC) -Wextra -Wall -S main.c -fverbose-asm
 clean:
 	rm exam
-	rm *.o
+	#rm *.o
 	rm main.s
 	rm -rf exam.dSYM/
