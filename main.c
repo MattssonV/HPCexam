@@ -93,22 +93,24 @@ int main(int argc, char **argv)
     end = clock();
     timings[3] = printtime(start, end);
     print_matrix(matrix, N);
-    float *xv,*yv,*zv;
+    float *xv,*yv,*zv,*sf;
     
     start = clock();
     xv=getXvec(stars,N);
     yv= getYvec(stars,N);
     zv= getZvec(stars,N);
+    sf= getSFvec(stars,N);
     end = clock();
     
     printtime(start,end);
     
-    
+    float_t *matrix2 = (float_t *) malloc(N*N*sizeof(float_t));
     start = clock();
-    fill_mat_avx(stars, matrix, N,xv,yv,zv);
+    fill_mat_avx(matrix2, N,xv,yv,zv,sf);
     end = clock();
     
-    print_matrix(matrix, N);
+    //print_matrix(matrix, N);
+    print_mat_vec(matrix2,N);
     
     timings[3] = printtime(start, end);
     printf("generating histogram: \t");

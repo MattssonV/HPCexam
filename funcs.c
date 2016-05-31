@@ -195,40 +195,40 @@ float_t * getZvec(star_t * array,int N){
     return xvec;
 }
 
-void fill_mat_avx(star_t * array, float_t **matrix, int size, float_t *xv, float_t * yv, float_t * zv){
+float_t * getSFvec(star_t * array,int N){
+    float_t *xvec=(float_t *) malloc((N)*sizeof(float_t));
+    int i;
+    for (i=0; i<N; i++) {
+        xvec[i]=(float_t) array[i].subType;
+    }
+    return xvec;
+}
+
+void fill_mat_avx(float_t *matrix, int size, float_t *xv, float_t * yv, float_t * zv, float_t * sf){
     int i,j;
-    __m256 xi,yi,zi,xj,yj,zj,x1,y1,z1,x2,y2,z2,dist,dist2,dist3;
+    __m256 xi,yi,zi,xj,yj,zj,x1,y1,z1,x2,y2,z2,dist,dist2,dist3,sfi,sfj,sf1,sf2,sf3,sfm,sfr,res,cDiv;
+    float con = 0.6;
+    
     for (i=0; i<size; i++) {
-        //__m256 xi = _mm256_loadu_ps((float_t *)&array[i].position.x);
-        //__m256 yi = _mm256_loadu_ps((float_t *)&array[i].position.y);
-        //__m256 zi = _mm256_loadu_ps((float_t *)&array[i].position.z);
-        
         xi = _mm256_loadu_ps(xv+i);
         yi = _mm256_loadu_ps(yv+i);
         zi = _mm256_loadu_ps(zv+i);
-        
-        /*
-        //__m256 xi = _mm256_set_ps(array[i].position.x,array[i].position.x,array[i].position.x,array[i].position.x,
-                                  array[i].position.x,array[i].position.x,array[i].position.x,array[i].position.x);
-        //__m256 yi = _mm256_set_ps(array[i].position.y,array[i].position.y,array[i].position.y,array[i].position.y,
-                                  array[i].position.y,array[i].position.y,array[i].position.y,array[i].position.y);
-        //__m256 zi = _mm256_set_ps(array[i].position.z,array[i].position.z,array[i].position.z,array[i].position.z,
-                                  array[i].position.z,array[i].position.z,array[i].position.z,array[i].position.z);
-        */
+        sfi = _mm256_loadu_ps(sf+i);
         //__m256i sf1 = _mm_256_loadu_si256((int *)&array[i].subType);
-        for (j=0; j<size; j++) {
+        for (j=0; j<size; j+=vec_len) {
+            //printf("a ");
+            cDiv = _mm256_set1_ps(con);
             xj = _mm256_loadu_ps(xv+j);
             yj = _mm256_loadu_ps(yv+j);
             zj = _mm256_loadu_ps(zv+j);
+            sfj= _mm256_loadu_ps(sf+j);
             
-            /*
-            __m256 xj = _mm256_set_ps(array[j].position.x,array[j+1].position.x,array[j+2].position.x,array[j+3].position.x,
-                                      array[j+4].position.x,array[j+5].position.x,array[j+6].position.x,array[j+7].position.x);
-            __m256 yj = _mm256_set_ps(array[j].position.y,array[j+1].position.y,array[j+2].position.y,array[j+3].position.y,
-                                      array[j+4].position.y,array[j+5].position.y,array[j+6].position.y,array[j+7].position.y);
-            __m256 zj = _mm256_set_ps(array[j].position.z,array[j+1].position.z,array[j+2].position.z,array[j+3].position.z,
-                                      array[j+4].position.z,array[j+5].position.z,array[j+6].position.z,array[j+7].position.z);
-            //*/
+            sf1= _mm256_mul_ps(sfi,sfj);
+            sfm= _mm256_div_ps(sf1,cDiv);
+            sf2= _mm256_add_ps(sfi,sfj);
+            sf3 = _mm256_add_ps(sf2,sfm);
+            sfr = _mm256_sqrt_ps(sf3);
+            
             x1 = _mm256_sub_ps(xi,xj);
             y1 = _mm256_sub_ps(yi,yj);
             z1 = _mm256_sub_ps(zi,zj);
@@ -238,6 +238,8 @@ void fill_mat_avx(star_t * array, float_t **matrix, int size, float_t *xv, float
             dist2 = _mm256_add_ps(x2,y2);
             dist3 = _mm256_add_ps(dist2,z2);
             dist = _mm256_sqrt_ps(dist3);
+            
+            res = _mm256_add_ps(dist,sfr);
             /*
             float* df = (float *)&dist;
             printf("\n");
@@ -247,7 +249,14 @@ void fill_mat_avx(star_t * array, float_t **matrix, int size, float_t *xv, float
             printf("%f %f %f %f %f %f %f %f\n",
                    df[0], df[1], df[2], df[3], df[4], df[5], df[6], df[7]);
             //*/
-            _mm256_storeu_ps(&matrix[i][j],dist);
+            //float* df = (float *)&dist;
+            /*
+            for (i=0;i<vec_len;i++){
+                matrix[a] = df[i];
+                //_mm256_storeu_ps(&matrix[a],dist);
+                a++;
+            } */
+            _mm256_storeu_ps(matrix+i+j,res);//&matrix[i*size+j],dist);
             //_mm256_storeu_ps(&matrix[j][i],dist);
         }
     }
@@ -329,6 +338,18 @@ void print_matrix(float_t** theMatrix, int n)
 	printf("%.2f " , theMatrix[i][j]);
       putchar('\n');
     }
+}
+
+void print_mat_vec(float_t * matrix, int N){
+    int i,j;
+    printf("\n");
+    for(i = 0 ; i < N; i++)
+    {
+        for(j = 0 ; j < N ; j++)
+            printf("%.2f " , matrix[i*N+j]);
+        putchar('\n');
+    }
+    //printf("\n");
 }
 
 hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, int hist_size) {
