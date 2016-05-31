@@ -29,6 +29,8 @@ void print_matrix(float_t** matrix, int n);
 hist_param_t generate_histogram(float_t **matrix, int *histogram, int mat_size, int hist_size);
 
 void display_histogram(int *histogram, hist_param_t histparams);
+int fileIsEmpty(FILE * fp);
 void saveToFile(int N, double *timings);
+
 
 #endif

@@ -187,14 +187,24 @@ void display_histogram(int *histogram, hist_param_t histparams)
   printf("\n");
 }
 
+int fileIsEmpty(FILE * fp)
+{
+    fseek(fp, 0, SEEK_END);
+    return ftell(fp) == 0;
+}
+
 void saveToFile(int N, double *timings){
     FILE *fp;
     int i;
     char* filename = "timings.csv";
-    fp = fopen(filename,"w+");
-    fprintf(fp,"\n%d",N);
+    fp = fopen(filename,"a");
+    if (fileIsEmpty(fp))
+        fprintf(fp, "Stars, Create, Sort , Allocate , Fill, Histogram\n");
+    fprintf(fp,"%d",N);
     for (i=0; i<5; i++) {
         fprintf(fp,",%f",timings[i]);
     }
+    fprintf(fp,"\n");
+    printf("Saved to %s\n",filename);
     fclose(fp);
 }

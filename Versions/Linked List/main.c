@@ -63,7 +63,6 @@ int main(int argc, char **argv)
     end = clock();
     timings[1] = printtime(start, end);
     //print_stars(stars, N);
-    printList(list);
     /*
     printf("allocating matrix: \t");
     start = clock();
@@ -103,6 +102,7 @@ int main(int argc, char **argv)
         free(matrix[i]);
     free(matrix);
     */
+    saveToFile(N,timings);
     free(timings);
     return 0;
 }

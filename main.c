@@ -53,28 +53,14 @@ int main(int argc, char **argv)
         create_ref_star_array(stars,N);
     }
     
-    
-    //print_stars(stars, N);
-    //printList(list);
-    
     printf("sorting stars:    \t");
     
     start = clock();
     merge_sort(stars,N);
-    //sort(stars, N);
-    //list = sortList(list);
     
     end = clock();
     timings[1] = printtime(start, end);
-    /* */
-    //print_stars(stars, N);
-    //printList(list);
-   
-        //for(i=0;i<10;i++)
-          //  stars[N+i] = padStar(N+i);
-    
-    //print_stars(stars, N+pad);
-     //*/
+
     printf("allocating matrix: \t");
     start = clock();
     
@@ -87,48 +73,32 @@ int main(int argc, char **argv)
     
     
     printf("filling matrix: \t");
-    start = clock();
-    fill_matrix(stars, matrix, N);
-    
-    end = clock();
-    timings[3] = printtime(start, end);
-    //print_matrix(matrix, N);
+
     float *xv,*yv,*zv,*sf;
+
     
+    float_t *matrix2 = (float_t *) malloc(N*N*sizeof(float_t));
     start = clock();
     xv=getXvec(stars,N);
     yv= getYvec(stars,N);
     zv= getZvec(stars,N);
     sf= getSFvec(stars,N);
-    end = clock();
-    
-    printtime(start,end);
-    
-    float_t *matrix2 = (float_t *) malloc(N*N*sizeof(float_t));
-    start = clock();
     fill_mat_avx(matrix2, N,xv,yv,zv,sf);
     end = clock();
     
-    //print_matrix(matrix, N);
     //print_mat_vec(matrix2,N);
     
     timings[3] = printtime(start, end);
     printf("generating histogram: \t");
-    start = clock();
-    int *histogram = (int *)calloc(NUM_HIST_BOXES,sizeof(int));
-    hist_param_t histparams = generate_histogram(matrix, histogram, N, NUM_HIST_BOXES);
-    end = clock();
-    timings[4] = printtime(start, end);
-    
+
     start = clock();
     int *hist = (int *)calloc(NUM_HIST_BOXES+1,sizeof(int));
     hist_param_t para = gen_hist_opt(matrix2,hist,N,NUM_HIST_BOXES);
     
     end = clock();
     
-    printtime(start,end);
+    timings[4] = printtime(start,end);
     
-    display_histogram(histogram, histparams);
     display_histogram(hist,para);
     
     saveToFile(N,timings);
